@@ -26,22 +26,23 @@ Meteor.publish(
     let _id = data && data._id ? { _id: data._id } : {};
 
     //Find Data Collection
-    let data_products = Product.find(_id, {
-      fields: {
-        name: 1,
-        description: 1,
-        type: 1,
-        piece: 1,
-        quantity: 1,
-        unitPrice: 1,
-        expirationDate: 1,
-        status: 1,
-        createdAt: 1
-      }
-    });
+    // let data_products = Product.find(_id, {
+    //   fields: {
+    //     name: 1,
+    //     description: 1,
+    //     type: 1,
+
+    //     quantity: 1,
+    //     unitPrice: 1,
+
+    //     status: 1,
+    //     createdAt: 1
+    //   }
+    // });
+    console.log("products ", data_products);
 
     //Return Data
-    return data_products;
+    return Product.find(); //data_products;
   },
   {
     url: "get-product",

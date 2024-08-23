@@ -37,10 +37,6 @@ export const productSchema = new SimpleSchema(
       type: String,
       label: "Tipo de producto"
     },
-    piece: {
-      type: String,
-      label: "Pieza"
-    },
     quantity: {
       type: Number,
       label: "Cantidad"
@@ -48,10 +44,6 @@ export const productSchema = new SimpleSchema(
     unitPrice: {
       type: Number,
       label: "Precio unitario"
-    },
-    expirationDate: {
-      type: Date,
-      label: "Fecha de vencimiento"
     },
     status: {
       type: Boolean,
