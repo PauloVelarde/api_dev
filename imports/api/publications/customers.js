@@ -1,152 +1,49 @@
 /**********************************************************
 **************************CUSTOMERS JS**************************
 ***********************************************************
-* @function: Publicacion MongoCollection Customer.
-* @chatsjs : Publish Methods by GET or POST
+* @function: MongoCollection Customer Publication.
+* @chatsjs : Publish Methods by GET 
 * @author: Juan Paulo Velarde 
 * @date: 21/08/2024
 **********************************************************
 **********************************************************/
 import { Meteor } from "meteor/meteor";
-//Import Collection
-import Customer from "../collections/Customers";
+import Customers from "../collections/Customers";
+import { JsonRoutes } from 'meteor/simple:json-routes';
 
 /**********************************************************
 ********************* PUBLICATIONS ************************
 **********************************************************/
 
 /**********************************************************
-* @name: Customer
-* @function: Get Customer
-* @author: Juan Paulo Velarde 
+* @name: customers
+* @function: Get All Customers
 **********************************************************/
-Meteor.publish(
-  "customers",
-  function(data) {
-    //Validate Data
-    let _id = data && data._id ? { _id: data._id } : {};
-
-    //Find Data Collection
-    let data_customer = Customer.find(_id, {
-      fields: {
-        fullName: 1,
-        identification: 1,
-        address: 1,
-        phone: 1,
-        email: 1,
-        status: 1,
-        createdAt: 1
-      }
-    });
-
-    //Return Data
-    return data_customer;
-  },
-  {
-    url: "get-customer",
-    httpMethod: "get"
-  }
-);
-/**********************************************************
-* @name: Customer
-* @function: Insert Customer
-* @author: Juan Paulo Velarde 
-**********************************************************/
-Meteor.publish(
-  "insertCustomer",
-  function(data) {
-    //Validate Data
-    if (!data) return;
-
-    //Create Data Return
-    let data_customer;
-
-    //Validate Transaction
-    try {
-      let insertCustomer = Meteor.call("createCustomer", data, (e, success) => {
-        if (e) return false;
-        if (success) return success;
-      });
-      data_customer = Customer.find({ _id: insertCustomer.data });
-    } catch (error) {
-      console.error("error publish insertCustomer = ", error);
-    }
-
-    //Return Data
-    return data_customer;
-  },
-  {
-    url: "insert-customer",
-    httpMethod: "post"
-  }
-);
+Meteor.publish('customers', function () {
+  return Customers.find();
+});
 
 /**********************************************************
-* @name: Customer
-* @function: Update Customer
-* @author: Juan Paulo Velarde 
+* @name: customerOne
+* @function: Get a Single Customer by ID
 **********************************************************/
-Meteor.publish(
-  "updateCustomer",
-  function(data) {
-    //Validate Data
-    if (!data) return;
-    let _id = data && data._id ? { _id: data._id } : {};
+Meteor.publish('customerOne', function (id) {
+  check(id, String);  // Validación de entrada
+  return Customers.find({ _id: id });
+});
 
-    //Create Data Return
-    let data_customer;
+// Expose Publications as RESTful API using simple:rest
+JsonRoutes.add("GET", "/api/get-customers", (req, res) => {
+  const customers = Customers.find().fetch();
+  JsonRoutes.sendResult(res, { code: 200, data: customers });
+});
 
-    //Validate Transaction
-    try {
-      Meteor.call("updateCustomer", data, (e, success) => {
-        if (e) return false;
-        if (success) return success;
-      });
-      data_customer = Customer.find({ _id: _id });
-    } catch (error) {
-      console.error("error publish updateCustomer = ", error);
-    }
-
-    //Return Data
-    return data_customer;
-  },
-  {
-    url: "update-customer",
-    httpMethod: "post"
+JsonRoutes.add("GET", "/api/get-customer/:id", (req, res) => {
+  const id = req.params.id;
+  const customer = Customers.findOne({ _id: id });
+  if (customer) {
+    JsonRoutes.sendResult(res, { code: 200, data: customer });
+  } else {
+    JsonRoutes.sendResult(res, { code: 404, data: { error: "Customer not found" } });
   }
-);
-
-/**********************************************************
-* @name: Customer
-* @function: Remove Customer
-* @author: Juan Paulo Velarde 
-**********************************************************/
-Meteor.publish(
-  "removeCustomer",
-  function(data) {
-    //Validate Data
-    if (!data) return;
-    let _id = data && data._id ? { _id: data._id } : {};
-
-    //Create Data Return
-    let data_customer;
-
-    //Validate Transaction
-    try {
-      Meteor.call("removeCustomer", _id, (e, success) => {
-        if (e) return false;
-        if (success) return success;
-      });
-      data_customer = Customer.find({});
-    } catch (error) {
-      console.error("error publish removeCustomer = ", error);
-    }
-
-    //Return Data
-    return data_customer;
-  },
-  {
-    url: "remove-customer",
-    httpMethod: "post"
-  }
-);
+});

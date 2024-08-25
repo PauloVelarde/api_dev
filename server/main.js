@@ -1,9 +1,8 @@
 /**********************************************************
-***********************BOOTSTRAP JS************************
+***********************MAIN JS************************
 ***********************************************************
-* @function: Archivo de precarga de datos de la Aplicación 
-*api_dev
-* @bootstrapjs : Precarga de datos Aplicación Meteor
+* @function: api_dev Application data preload file
+* @mainjs : Preloading data Meteor App
 * @author: Juan Paulo Velarde 
 * @date: 21/05/2024
 **********************************************************
@@ -11,40 +10,40 @@
 import { Meteor } from "meteor/meteor";
 import { WebApp } from "meteor/webapp";
 
+// Import API Methods and Publications
+import '../imports/api/methods'
+import '../imports/api/publications'
+
 /**********************************************************
 **********************CONFIGURATION************************
 **********************************************************/
-//Import MongoCollections Diagnosis Configuration
+
+//Import MongoCollections api_dev Configuration
 import Products from "../imports/api/collections/Products";
+import Customers from "../imports/api/collections/Customers";
+import Sales from "../imports/api/collections/Sales";
 
+// Meteor startup function
 Meteor.startup(async () => {
-  //Enabled CORS
-  WebApp.rawConnectHandlers.use(function(req, res, next) {
+   // Enable CORS for all routes
+   WebApp.rawConnectHandlers.use((req, res, next) => {
     res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Access-Control-Allow-Headers", "Authorization,Content-Type");
-    res.setHeader("Access-Control-Allow-Headers", "*");
-    res.setHeader("Access-Control-Allow-Methods", "*");
-    res.setHeader(
-      "Access-Control-Allow-Methods",
-      "GET,PUT,POST,DELETE,PATCH,OPTIONS"
-    );
-    return next();
+    res.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type");
+    res.setHeader("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE, PATCH, OPTIONS");
+    
+    // Handle OPTIONS method for preflight requests
+    if (req.method === "OPTIONS") {
+      res.writeHead(200);
+      res.end();
+    } else {
+      next();
+    }
   });
 
-  WebApp.connectHandlers.use((req, res, next) => {
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Access-Control-Allow-Headers", "Authorization,Content-Type");
-    res.setHeader("Access-Control-Allow-Headers", "*");
-    res.setHeader("Access-Control-Allow-Methods", "*");
-    res.setHeader(
-      "Access-Control-Allow-Methods",
-      "GET,PUT,POST,DELETE,PATCH,OPTIONS"
-    );
-    return next();
-  });
-  /**********************************************************
+/**********************************************************
 **********************CONFIGURATION************************
 **********************************************************/
+
   //Validate Product
   if (Products.find({}).count() != 0) return;
   //Add Products
@@ -57,7 +56,7 @@ Meteor.startup(async () => {
       quantity: 500,
       unitPrice: 5.99,
       status: true,
-      createdAt: new Date()
+      createdAt: new Date().toISOString()
     },
     {
       name: "Bistec de res",
@@ -67,7 +66,7 @@ Meteor.startup(async () => {
       quantity: 1000,
       unitPrice: 8.99,
       status: true,
-      createdAt: new Date()
+      createdAt: new Date().toISOString()
     },
     {
       name: "Salchichas de pollo",
@@ -77,7 +76,7 @@ Meteor.startup(async () => {
       quantity: 2000,
       unitPrice: 3.99,
       status: true,
-      createdAt: new Date()
+      createdAt: new Date().toISOString()
     },
     {
       name: "Lomo de cerdo",
@@ -87,7 +86,7 @@ Meteor.startup(async () => {
       quantity: 800,
       unitPrice: 7.99,
       status: true,
-      createdAt: new Date()
+      createdAt: new Date().toISOString()
     },
     {
       name: "Hamburguesas de carne",
@@ -97,7 +96,7 @@ Meteor.startup(async () => {
       quantity: 1500,
       unitPrice: 4.99,
       status: true,
-      createdAt: new Date()
+      createdAt: new Date().toISOString()
     },
     {
       name: "Jamón serrano",
@@ -107,7 +106,7 @@ Meteor.startup(async () => {
       quantity: 300,
       unitPrice: 12.99,
       status: true,
-      createdAt: new Date()
+      createdAt: new Date().toISOString()
     },
     {
       name: "Albondigas de carne",
@@ -117,7 +116,7 @@ Meteor.startup(async () => {
       quantity: 1000,
       unitPrice: 6.99,
       status: true,
-      createdAt: new Date()
+      createdAt: new Date().toISOString()
     },
     {
       name: "Pechuga de pollo empanizada",
@@ -126,7 +125,7 @@ Meteor.startup(async () => {
       quantity: 2500,
       unitPrice: 4.99,
       status: true,
-      createdAt: new Date()
+      createdAt: new Date().toISOString()
     },
     {
       name: "Morcilla",
@@ -136,7 +135,7 @@ Meteor.startup(async () => {
       quantity: 500,
       unitPrice: 5.99,
       status: true,
-      createdAt: new Date()
+      createdAt: new Date().toISOString()
     },
     {
       name: "Costillas de cerdo ahumadas",
@@ -146,7 +145,7 @@ Meteor.startup(async () => {
       quantity: 800,
       unitPrice: 9.99,
       status: true,
-      createdAt: new Date()
+      createdAt: new Date().toISOString()
     }
   ];
   //Create Produts
@@ -154,5 +153,113 @@ Meteor.startup(async () => {
   products.forEach(product => {
     let idProduct = Products.insert(product);
     ids_products.push(idProduct);
+  });
+
+  //Validate Customer
+  if (Customers.find({}).count() != 0) return;
+  //Add Customer
+  const customers = [
+    {
+      fullName: "John Doe",
+      identification: "123456789",
+      address: "123 Main St, Anytown, USA",
+      phone: "123-456-7890",
+      email: "johndoe@example.com",
+      status: true,
+      createdAt: new Date().toISOString()
+    },
+    {
+      fullName: "Jane Smith",
+      identification: "987654321",
+      address: "456 Elm St, Anothertown, USA",
+      phone: "987-654-3210",
+      email: "janesmith@example.com",
+      status: false,
+      createdAt: new Date().toISOString()
+    },
+    {
+      fullName: "María Rodríguez",
+      identification: "12345678-K",
+      address: "Calle Mayor, 123, Madrid, España",
+      phone: "+34 654 321 123",
+      email: "maria.rodriguez@example.com",
+      status: true,
+      createdAt: new Date("2023-11-22T10:35:24Z").toISOString()
+    },
+    {
+      fullName: "Juan Pérez",
+      identification: "87654321-P",
+      address: "Avenida del Mar, 456, Barcelona, España",
+      phone: "+34 987 654 321",
+      email: "juan.perez@example.com",
+      status: false,
+      createdAt: new Date("2023-12-01T15:20:54Z").toISOString()
+    },
+    {
+      fullName: "Ana García",
+      identification: "55555555-A",
+      address: "Plaza de la Constitución, 789, Sevilla, España",
+      phone: "+34 123 456 789",
+      email: "ana.garcia@example.com",
+      status: true,
+      createdAt: new Date().toISOString()
+    },
+  ];
+  //Create Customers
+  let ids_customers = [];
+  customers.forEach(customer => {
+    let idCustomer = Customers.insert(customer);
+    ids_customers.push(idCustomer);
+  });
+  //Validate Sale
+  if (Sales.find({}).count() != 0) return;
+  //Add Sale
+  const sales = [
+    {
+      name: "Venta 1",
+      customerId: "wpHEgE3R8MFcdX66i",
+      productId: "mzp8YuqAW7mCGDzMa",
+      paymentMethod: "Tarjeta de crédito",
+      status: true,
+      createdAt: new Date().toISOString()
+    },
+    {
+      name: "Venta 2",
+      customerId: "4NTXhx5wNWmdcyJjh",
+      productId: "kY8jm3KPwFiAZa76C",
+      paymentMethod: "Efectivo",
+      status: false,
+      createdAt: new Date().toISOString()
+    },
+    {
+      name: "Venta 3",
+      customerId: "WEcvNeQQmRxjujZa7",
+      productId: "49f8Yb7DGS5sk5ZRE",
+      paymentMethod: "Transferencia bancaria",
+      status: true,
+      createdAt: new Date().toISOString()
+    },
+    {
+      name: "Venta 4",
+      customerId: "7Fg3KeZ8AXSTLGfAK",
+      productId: "bmvp3YBivJsbntX6w",
+      paymentMethod: "Tarjeta de débito",
+      status: false,
+      createdAt: new Date().toISOString()
+    },
+    {
+      name: "Venta 5",
+      customerId: "MyN4mCdk7QRGW6575",
+      productId: "wjEsjsRc5RJeX5vT8",
+      paymentMethod: "PayPal",
+      status: true,
+      createdAt: new Date().toISOString()
+    }
+  ];
+  //Create Sales
+  let ids_sales = [];
+  sales.forEach(sale => {
+    let idSale = Sales.insert(sale);
+    ids_sales.push(idSale);
   });
 });

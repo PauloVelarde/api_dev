@@ -1,163 +1,120 @@
 /**********************************************************
 **************************CUSTOMERS JS**************************
 ***********************************************************
-* @function: Metodos MongoCollection Customers.
+* @function: MongoCollection Customers Methods.
 * @filejs : Publish Methods Meteor
 * @author: Juan Paulo Velarde 
 * @date: 21/08/2024
 **********************************************************
 **********************************************************/
 import { Meteor } from "meteor/meteor";
-//Import Collections
 import Customers from "../collections/Customers";
-//Import SimpleSchema & Check
 import SimpleSchema from "simpl-schema";
-import { check } from "meteor/check";
+import { JsonRoutes } from 'meteor/simple:json-routes';
 
-//Activated Validation Errors
+
+// Activate Validation Errors
 SimpleSchema.defineValidationErrorTransform(error => {
-  const ddpError = new Meteor.Error(error.message);
-  ddpError.error = "validation-error";
+  const ddpError = new Meteor.Error('validation-error', error.message);
   ddpError.details = error.details;
   return ddpError;
 });
 
-//Defined Schemma
-export const customerSchema = new SimpleSchema(
-  {
-    fullName: {
-      type: String,
-      label: "Nombre Completo"
-    },
-    identification: {
-      type: String,
-      unique: true,
-      label: "Identificación"
-    },
-    address: {
-      type: String,
-      label: "Dirección"
-    },
-    phone: {
-      type: String,
-      label: "Teléfono"
-    },
-    email: {
-      type: String,
-      label: "Email"
-    },
-    status: {
-      type: Boolean,
-      label: "Estado (activo/inactivo)"
-    },
-    createdAt: {
-      type: Date,
-      optional: true,
-      defaultValue: new Date()
-    }
-  },
-  { check }
-).newContext();
+// Define Schema
+const customerSchema = new SimpleSchema({
+  fullName: { type: String },
+  identification: { type: String },
+  address: { type: String },
+  phone: { type: String },
+  email: { type: String },
+  status: { type: Boolean },
+  createdAt: { type: String, defaultValue: new Date() },
+}).newContext();
 
 //Initial Meteor Methods
 Meteor.methods({
-  /***********************************************************
-    * @name: CreateCustomer
-    * @function: Insert Customer
-    * @param: object:{customer}
-    * @author: Juan Paulo Velarde 
-    **********************************************************/
+  /**********************************************************
+   * @name: createCustomer
+   * @function: Insert Customer
+   **********************************************************/
   createCustomer(customer) {
+    // Validate the client
     customerSchema.validate(customer);
-    let return_data = {};
-    if (customerSchema.validationErrors().length > 0) {
-      return_data = {
-        status: false,
-        error: customerSchema.validationErrors(),
-        data: false
-      };
-      console.log(
-        "error validacion createCustomer = ",
-        customerSchema.validationErrors()
-      );
-      return return_data;
+    if (!customerSchema.isValid()) {
+      throw new Meteor.Error('validation-error', 'Customer data is invalid');
     }
-    //Is Valid Schema
-    if (customerSchema.isValid()) {
-      //Catch Insert
-      try {
-        let customerId = customer.insert(customer);
-        if (customerId) {
-          return_data = {
-            status: true,
-            data: customerId
-          };
-
-          return return_data;
-        }
-      } catch (error) {
-        return error;
-      }
-    }
-  },
-  /***********************************************************
-    * @name: UpdateCustomer
-    * @function: Update Customers
-    * @param: object:{customer}
-    * @author: Juan Paulo Velarde 
-    **********************************************************/
-  updateCustomer(customer) {
-    customerSchema.validate(customer.data);
-    let return_data = {};
-    if (customerSchema.validationErrors().length > 0) {
-      return_data = {
-        status: false,
-        error: customerSchema.validationErrors(),
-        data: false
-      };
-      console.log(
-        "error validacion updateCustomer = ",
-        customerSchema.validationErrors()
-      );
-      return return_data;
-    }
-    //Is Valid Schema
-    if (customerSchema.isValid()) {
-      //Catch Update
-      try {
-        let customerId = Customers.update(customer.id, { $set: customer.data });
-        if (customerId) {
-          return_data = {
-            status: true,
-            data: customerId
-          };
-
-          return return_data;
-        }
-      } catch (error) {
-        return error;
-      }
-    }
-  },
-  /***********************************************************
-    * @name: removeCustomer
-    * @function: Remove Customer
-    * @param: id 
-    * @author: Juan Paulo Velarde 
-    **********************************************************/
-  removeCustomer(id) {
-    //Catch Remove
+  
     try {
-      let customerId = Customers.remove({ _id: id });
-      if (customerId) {
-        return_data = {
-          status: true,
-          data: customerId
-        };
-        return return_data;
-      }
+      // Insert the client with the correct date
+      const customerId = Customers.insert(customer);
+      return customerId;
     } catch (error) {
-      return error;
+      throw new Meteor.Error('insert-failed', error.message);
     }
+  },
+  
+
+  /**********************************************************
+   * @name: updateCustomer
+   * @function: Update Customer
+   **********************************************************/
+  updateCustomer({ id, data }) {
+    customerSchema.validate(data);
+
+    if (!customerSchema.isValid()) {
+      throw new Meteor.Error('validation-error', 'Customer data is invalid');
+    }
+
+    try {
+      const result = Customers.update(id, { $set: data });
+      return result ? Customers.findOne(id) : null;
+    } catch (error) {
+      throw new Meteor.Error('update-failed', error.message);
+    }
+  },
+
+  /**********************************************************
+   * @name: removeCustomer
+   * @function: Remove Customer
+   **********************************************************/
+  removeCustomer(id) {
+    try {
+      const result = Customers.remove({ _id: id });
+      return result;
+    } catch (error) {
+      throw new Meteor.Error('remove-failed', error.message);
+    }
+  },
+});
+
+// Expose Methods as RESTful API using simple:rest
+JsonRoutes.add("POST", "/api/create-customer", (req, res) => {
+  try {
+    const customer = req.body;
+    const customerId = Meteor.call("createCustomer", customer);
+    JsonRoutes.sendResult(res, { code: 200, data: { customerId } });
+  } catch (error) {
+    JsonRoutes.sendResult(res, { code: 400, data: { error: error.message } });
+  }
+});
+
+JsonRoutes.add("PUT", "/api/update-customer/:id", (req, res) => {
+  try {
+    const id = req.params.id;
+    const data = req.body;
+    const updatedCustomer = Meteor.call("updateCustomer", { id, data });
+    JsonRoutes.sendResult(res, { code: 200, data: updatedCustomer });
+  } catch (error) {
+    JsonRoutes.sendResult(res, { code: 400, data: { error: error.message } });
+  }
+});
+
+JsonRoutes.add("DELETE", "/api/remove-customer/:id", (req, res) => {
+  try {
+    const id = req.params.id;
+    const result = Meteor.call("removeCustomer", id);
+    JsonRoutes.sendResult(res, { code: 200, data: { result } });
+  } catch (error) {
+    JsonRoutes.sendResult(res, { code: 400, data: { error: error.message } });
   }
 });

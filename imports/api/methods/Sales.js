@@ -8,151 +8,111 @@
 **********************************************************
 **********************************************************/
 import { Meteor } from "meteor/meteor";
-//Import Collections
 import Sales from "../collections/Sales";
-//Import SimpleSchema & Check
 import SimpleSchema from "simpl-schema";
-import { check } from "meteor/check";
+import { JsonRoutes } from 'meteor/simple:json-routes';
 
-//Activated Validation Errors
+// Activate Validation Errors
 SimpleSchema.defineValidationErrorTransform(error => {
-  const ddpError = new Meteor.Error(error.message);
-  ddpError.error = "validation-error";
+  const ddpError = new Meteor.Error('validation-error', error.message);
   ddpError.details = error.details;
   return ddpError;
 });
 
-//Defined Schemma
-export const saleSchema = new SimpleSchema(
-  {
-    date: {
-      type: Date,
-      label: "Fecha de venta"
-    },
-    customerId: {
-      type: String, // Suponiendo una referencia a un ID de cliente
-      label: "Cliente"
-    },
-    productId: {
-      type: Array,
-      label: "Productos vendidos"
-    },
-    paymentMethod: {
-      type: String,
-      label: "Método de pago"
-    },
-    status: {
-      type: Boolean,
-      label: "Estado (completado/cancelado)"
-    },
-    createdAt: {
-      type: Date,
-      optional: true,
-      defaultValue: new Date()
-    }
-  },
-  { check }
-).newContext();
+// Define Schema
+const saleSchema = new SimpleSchema({
+  name: { type: String },
+  customerId: { type: String },
+  productId: { type: String },
+  paymentMethod: { type: String },
+  status: { type: Boolean },
+  createdAt: { type: String, defaultValue: new Date() },
+}).newContext();
+
 
 //Initial Meteor Methods
 Meteor.methods({
-  /***********************************************************
-    * @name: CreateSale
-    * @function: Insert Sales
-    * @param: object:{sale}
-    * @author: Juan Paulo Velarde 
-    **********************************************************/
+  /**********************************************************
+   * @name: createSale
+   * @function: Insert Sale
+   **********************************************************/
   createSale(sale) {
+    // Validate sale
     saleSchema.validate(sale);
-    let return_data = {};
-    if (saleSchema.validationErrors().length > 0) {
-      return_data = {
-        status: false,
-        error: saleSchema.validationErrors(),
-        data: false
-      };
-      console.log(
-        "error validacion createSale = ",
-        saleSchema.validationErrors()
-      );
-      return return_data;
+    if (!saleSchema.isValid()) {
+      throw new Meteor.Error('validation-error', 'Sale data is invalid');
     }
-    //Is Valid Schema
-    if (saleSchema.isValid()) {
-      //Catch Insert
-      try {
-        let saleId = Sales.insert(sale);
-        if (saleId) {
-          return_data = {
-            status: true,
-            data: saleId
-          };
-
-          return return_data;
-        }
-      } catch (error) {
-        return error;
-      }
-    }
-  },
-  /***********************************************************
-    * @name: UpdateSale
-    * @function: Update Sales
-    * @param: object:{sale}
-    * @author: Juan Paulo Velarde 
-    **********************************************************/
-  updateSale(sale) {
-    saleSchema.validate(sale.data);
-    let return_data = {};
-    if (saleSchema.validationErrors().length > 0) {
-      return_data = {
-        status: false,
-        error: saleSchema.validationErrors(),
-        data: false
-      };
-      console.log(
-        "error validacion updateSale = ",
-        saleSchema.validationErrors()
-      );
-      return return_data;
-    }
-    //Is Valid Schema
-    if (saleSchema.isValid()) {
-      //Catch Update
-      try {
-        let saleId = Sales.update(sale.id, { $set: sale.data });
-        if (saleId) {
-          return_data = {
-            status: true,
-            data: saleId
-          };
-
-          return return_data;
-        }
-      } catch (error) {
-        return error;
-      }
-    }
-  },
-  /***********************************************************
-    * @name: removeSale
-    * @function: Remove Sales
-    * @param: id 
-    * @author: Juan Paulo Velarde 
-    **********************************************************/
-  removeSale(id) {
-    //Catch Remove
+  
     try {
-      let saleId = Sales.remove({ _id: id });
-      if (saleId) {
-        return_data = {
-          status: true,
-          data: saleId
-        };
-        return return_data;
-      }
+      // Insert the sale with the correct date
+      const saleId = Sales.insert(sale);
+      return saleId;
     } catch (error) {
-      return error;
+      throw new Meteor.Error('insert-failed', error.message);
     }
+  },
+  
+  /**********************************************************
+   * @name: updateSale
+   * @function: Update Sale
+   **********************************************************/
+  updateSale({ id, data }) {
+    saleSchema.validate(data);
+
+    if (!saleSchema.isValid()) {
+      throw new Meteor.Error('validation-error', 'Sale data is invalid');
+    }
+
+    try {
+      const result = Sales.update(id, { $set: data });
+      return result ? Sales.findOne(id) : null;
+    } catch (error) {
+      throw new Meteor.Error('update-failed', error.message);
+    }
+  },
+
+  /**********************************************************
+   * @name: removeSale
+   * @function: Remove Sale
+   **********************************************************/
+  removeSale(id) {
+    try {
+      const result = Sales.remove({ _id: id });
+      return result;
+    } catch (error) {
+      throw new Meteor.Error('remove-failed', error.message);
+    }
+  },
+});
+
+// Expose Methods as RESTful API using simple:rest
+JsonRoutes.add("POST", "/api/create-sale", (req, res) => {
+  try {
+    const sale = req.body;
+    const saleId = Meteor.call("createSale", sale);
+    JsonRoutes.sendResult(res, { code: 200, data: { saleId } });
+  } catch (error) {
+    JsonRoutes.sendResult(res, { code: 400, data: { error: error.message } });
+  }
+});
+
+JsonRoutes.add("PUT", "/api/update-sale/:id", (req, res) => {
+  try {
+    const id = req.params.id;
+    const data = req.body;
+    const updatedSale = Meteor.call("updateSale", { id, data });
+    JsonRoutes.sendResult(res, { code: 200, data: updatedSale });
+  } catch (error) {
+    JsonRoutes.sendResult(res, { code: 400, data: { error: error.message } });
+  }
+});
+
+JsonRoutes.add("DELETE", "/api/remove-sale/:id", (req, res) => {
+  try {
+    const id = req.params.id;
+    const result = Meteor.call("removeSale", id);
+    JsonRoutes.sendResult(res, { code: 200, data: { result } });
+  } catch (error) {
+    JsonRoutes.sendResult(res, { code: 400, data: { error: error.message } });
   }
 });

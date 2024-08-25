@@ -9,4 +9,5 @@
 //Import Mongo
 import { Mongo } from "meteor/mongo";
 //Export Collection
-export default new Mongo.Collection("products");
+const Products = new Mongo.Collection('products');
+export default Products;
