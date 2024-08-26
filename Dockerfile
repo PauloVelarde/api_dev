@@ -9,8 +9,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends curl && \
 # Añadir Meteor al PATH
 ENV PATH="/root/.meteor:$PATH"
 
+# Verificar la existencia y permisos de Meteor
+RUN which meteor && ls -l /root/.meteor
+
 # Crear un usuario no root
-RUN useradd -m meteoruser
+RUN useradd -m -d /home/meteoruser meteoruser
 
 # Establece el directorio de trabajo
 WORKDIR /home/meteoruser/app
