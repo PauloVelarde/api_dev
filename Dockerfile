@@ -7,8 +7,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends curl && \
     apt-get purge --auto-remove -y curl && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Añadir Meteor al PATH usando la ruta absoluta
-ENV PATH="/root/.meteor:$PATH"
+# Añadir Meteor al PATH usando la ruta donde se instala automáticamente
+ENV PATH="$HOME/.meteor:$PATH"
 
 # Crear un usuario no root
 RUN useradd -m meteoruser
@@ -19,9 +19,6 @@ WORKDIR /app
 # Copia los archivos necesarios con el usuario correcto
 COPY --chown=meteoruser:meteoruser .meteor /app/.meteor
 COPY --chown=meteoruser:meteoruser package*.json /app/
-
-# Asignar permisos correctos
-RUN chmod -R 755 /root/.meteor && chown -R meteoruser:meteoruser /root/.meteor /app
 
 # Cambiar a usuario no root
 USER meteoruser
