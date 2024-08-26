@@ -2,7 +2,7 @@
 **************************PRODUCTS JS**************************
 ***********************************************************
 * @function: Metodos MongoCollection Products.
-* @filejs : Publish Methods Meteor
+* @Productsjs : Publish Methods Meteor
 * @author: Juan Paulo Velarde 
 * @date: 21/08/2024
 **********************************************************
@@ -10,11 +10,11 @@
 import { Meteor } from "meteor/meteor";
 import Products from "../collections/Products";
 import SimpleSchema from "simpl-schema";
-import { JsonRoutes } from 'meteor/simple:json-routes';
+import { JsonRoutes } from "meteor/simple:json-routes";
 
 // Activate Validation Errors
 SimpleSchema.defineValidationErrorTransform(error => {
-  const ddpError = new Meteor.Error('validation-error', error.message);
+  const ddpError = new Meteor.Error("validation-error", error.message);
   ddpError.details = error.details;
   return ddpError;
 });
@@ -27,7 +27,7 @@ const productSchema = new SimpleSchema({
   quantity: { type: Number },
   unitPrice: { type: Number },
   status: { type: Boolean },
-  createdAt: { type: String, defaultValue: new Date() },
+  createdAt: { type: String, defaultValue: new Date() }
 }).newContext();
 
 //Initial Meteor Methods
@@ -40,18 +40,18 @@ Meteor.methods({
     // Validate the product
     productSchema.validate(product);
     if (!productSchema.isValid()) {
-      throw new Meteor.Error('validation-error', 'Product data is invalid');
+      throw new Meteor.Error("validation-error", "Product data is invalid");
     }
-  
+
     try {
       // Insert the product with the correct date
       const productId = Products.insert(product);
       return productId;
     } catch (error) {
-      throw new Meteor.Error('insert-failed', error.message);
+      throw new Meteor.Error("insert-failed", error.message);
     }
   },
-  
+
   /**********************************************************
    * @name: updateProduct
    * @function: Update Product
@@ -60,14 +60,14 @@ Meteor.methods({
     productSchema.validate(data);
 
     if (!productSchema.isValid()) {
-      throw new Meteor.Error('validation-error', 'Product data is invalid');
+      throw new Meteor.Error("validation-error", "Product data is invalid");
     }
 
     try {
       const result = Products.update(id, { $set: data });
       return result ? Products.findOne(id) : null;
     } catch (error) {
-      throw new Meteor.Error('update-failed', error.message);
+      throw new Meteor.Error("update-failed", error.message);
     }
   },
 
@@ -80,9 +80,9 @@ Meteor.methods({
       const result = Products.remove({ _id: id });
       return result;
     } catch (error) {
-      throw new Meteor.Error('remove-failed', error.message);
+      throw new Meteor.Error("remove-failed", error.message);
     }
-  },
+  }
 });
 
 // Expose Methods as RESTful API using simple:rest

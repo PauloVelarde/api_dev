@@ -2,7 +2,7 @@
 **************************CUSTOMERS JS**************************
 ***********************************************************
 * @function: MongoCollection Customers Methods.
-* @filejs : Publish Methods Meteor
+* @Customersjs : Publish Methods Meteor
 * @author: Juan Paulo Velarde 
 * @date: 21/08/2024
 **********************************************************
@@ -10,12 +10,11 @@
 import { Meteor } from "meteor/meteor";
 import Customers from "../collections/Customers";
 import SimpleSchema from "simpl-schema";
-import { JsonRoutes } from 'meteor/simple:json-routes';
-
+import { JsonRoutes } from "meteor/simple:json-routes";
 
 // Activate Validation Errors
 SimpleSchema.defineValidationErrorTransform(error => {
-  const ddpError = new Meteor.Error('validation-error', error.message);
+  const ddpError = new Meteor.Error("validation-error", error.message);
   ddpError.details = error.details;
   return ddpError;
 });
@@ -28,7 +27,7 @@ const customerSchema = new SimpleSchema({
   phone: { type: String },
   email: { type: String },
   status: { type: Boolean },
-  createdAt: { type: String, defaultValue: new Date() },
+  createdAt: { type: String, defaultValue: new Date() }
 }).newContext();
 
 //Initial Meteor Methods
@@ -41,18 +40,17 @@ Meteor.methods({
     // Validate the client
     customerSchema.validate(customer);
     if (!customerSchema.isValid()) {
-      throw new Meteor.Error('validation-error', 'Customer data is invalid');
+      throw new Meteor.Error("validation-error", "Customer data is invalid");
     }
-  
+
     try {
       // Insert the client with the correct date
       const customerId = Customers.insert(customer);
       return customerId;
     } catch (error) {
-      throw new Meteor.Error('insert-failed', error.message);
+      throw new Meteor.Error("insert-failed", error.message);
     }
   },
-  
 
   /**********************************************************
    * @name: updateCustomer
@@ -62,14 +60,14 @@ Meteor.methods({
     customerSchema.validate(data);
 
     if (!customerSchema.isValid()) {
-      throw new Meteor.Error('validation-error', 'Customer data is invalid');
+      throw new Meteor.Error("validation-error", "Customer data is invalid");
     }
 
     try {
       const result = Customers.update(id, { $set: data });
       return result ? Customers.findOne(id) : null;
     } catch (error) {
-      throw new Meteor.Error('update-failed', error.message);
+      throw new Meteor.Error("update-failed", error.message);
     }
   },
 
@@ -82,9 +80,9 @@ Meteor.methods({
       const result = Customers.remove({ _id: id });
       return result;
     } catch (error) {
-      throw new Meteor.Error('remove-failed', error.message);
+      throw new Meteor.Error("remove-failed", error.message);
     }
-  },
+  }
 });
 
 // Expose Methods as RESTful API using simple:rest

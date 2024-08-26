@@ -2,7 +2,7 @@
 **************************SALES JS**************************
 ***********************************************************
 * @function: Metodos MongoCollection Sales.
-* @filejs : Publish Methods Meteor
+* @Salesjs : Publish Methods Meteor
 * @author: Juan Paulo Velarde 
 * @date: 21/08/2024
 **********************************************************
@@ -10,11 +10,11 @@
 import { Meteor } from "meteor/meteor";
 import Sales from "../collections/Sales";
 import SimpleSchema from "simpl-schema";
-import { JsonRoutes } from 'meteor/simple:json-routes';
+import { JsonRoutes } from "meteor/simple:json-routes";
 
 // Activate Validation Errors
 SimpleSchema.defineValidationErrorTransform(error => {
-  const ddpError = new Meteor.Error('validation-error', error.message);
+  const ddpError = new Meteor.Error("validation-error", error.message);
   ddpError.details = error.details;
   return ddpError;
 });
@@ -26,9 +26,8 @@ const saleSchema = new SimpleSchema({
   productId: { type: String },
   paymentMethod: { type: String },
   status: { type: Boolean },
-  createdAt: { type: String, defaultValue: new Date() },
+  createdAt: { type: String, defaultValue: new Date() }
 }).newContext();
-
 
 //Initial Meteor Methods
 Meteor.methods({
@@ -40,18 +39,18 @@ Meteor.methods({
     // Validate sale
     saleSchema.validate(sale);
     if (!saleSchema.isValid()) {
-      throw new Meteor.Error('validation-error', 'Sale data is invalid');
+      throw new Meteor.Error("validation-error", "Sale data is invalid");
     }
-  
+
     try {
       // Insert the sale with the correct date
       const saleId = Sales.insert(sale);
       return saleId;
     } catch (error) {
-      throw new Meteor.Error('insert-failed', error.message);
+      throw new Meteor.Error("insert-failed", error.message);
     }
   },
-  
+
   /**********************************************************
    * @name: updateSale
    * @function: Update Sale
@@ -60,14 +59,14 @@ Meteor.methods({
     saleSchema.validate(data);
 
     if (!saleSchema.isValid()) {
-      throw new Meteor.Error('validation-error', 'Sale data is invalid');
+      throw new Meteor.Error("validation-error", "Sale data is invalid");
     }
 
     try {
       const result = Sales.update(id, { $set: data });
       return result ? Sales.findOne(id) : null;
     } catch (error) {
-      throw new Meteor.Error('update-failed', error.message);
+      throw new Meteor.Error("update-failed", error.message);
     }
   },
 
@@ -80,9 +79,9 @@ Meteor.methods({
       const result = Sales.remove({ _id: id });
       return result;
     } catch (error) {
-      throw new Meteor.Error('remove-failed', error.message);
+      throw new Meteor.Error("remove-failed", error.message);
     }
-  },
+  }
 });
 
 // Expose Methods as RESTful API using simple:rest
