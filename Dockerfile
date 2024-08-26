@@ -16,9 +16,12 @@ RUN useradd -m meteoruser
 # Establece el directorio de trabajo
 WORKDIR /app
 
-# Copia solo los archivos necesarios para la construcción
+# Copia los archivos necesarios con el usuario correcto
 COPY --chown=meteoruser:meteoruser .meteor /app/.meteor
 COPY --chown=meteoruser:meteoruser package*.json /app/
+
+# Asignar permisos correctos
+RUN chmod -R 755 /root/.meteor && chown -R meteoruser:meteoruser /root/.meteor /app
 
 # Cambiar a usuario no root
 USER meteoruser
