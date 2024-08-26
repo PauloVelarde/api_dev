@@ -10,8 +10,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends curl && \
 # Añadir Meteor al PATH usando la ruta donde se instala
 ENV PATH="/root/.meteor:$PATH"
 
-# Asignar permisos de ejecución al binario de Meteor
-RUN chmod +x /root/.meteor/meteor
+# Verificar la existencia de Meteor y otorgar permisos de ejecución
+RUN ls -l /root/.meteor && chmod +x /root/.meteor/meteor
 
 # Crear un usuario no root
 RUN useradd -m -d /home/meteoruser meteoruser
