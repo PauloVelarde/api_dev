@@ -1,36 +1,31 @@
 # Etapa 1: Construcción
 FROM node:20-slim AS builder
 
-# Instala dependencias necesarias para Meteor y limpia después
+# Instala dependencias necesarias para Meteor
 RUN apt-get update && apt-get install -y --no-install-recommends curl && \
     curl https://install.meteor.com/ | sh && \
-    apt-get purge --auto-remove -y curl && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Añadir Meteor al PATH usando la ruta donde se instala
+# Añadir Meteor al PATH
 ENV PATH="/root/.meteor:$PATH"
 
-# Verificar la existencia de Meteor y otorgar permisos de ejecución
-RUN ls -l /root/.meteor && chmod +x /root/.meteor/meteor
-
 # Crear un usuario no root
-RUN useradd -m -d /home/meteoruser meteoruser
+RUN useradd -m meteoruser
 
 # Establece el directorio de trabajo
 WORKDIR /home/meteoruser/app
 
-# Copia los archivos necesarios con el usuario correcto
+# Copia los archivos con los permisos correctos
 COPY --chown=meteoruser:meteoruser . .
 
 # Cambiar a usuario no root
 USER meteoruser
 
-# Instala dependencias y compila la aplicación
+# Instala dependencias y construye la aplicación
 RUN meteor npm install --allow-superuser && \
-    meteor build --directory /build --server-only --allow-superuser && \
-    rm -rf /home/meteoruser/app
+    meteor build --directory /build --server-only --allow-superuser
 
-# Etapa 2: Imagen ligera para producción
+# Etapa 2: Imagen final para producción
 FROM node:20-alpine
 
 # Crear un usuario no root para la imagen final
@@ -43,8 +38,7 @@ WORKDIR /app
 COPY --from=builder /build/bundle /app
 
 # Establecer permisos adecuados
-RUN chown -R appuser:appgroup /app && \
-    chmod -R 755 /app
+RUN chown -R appuser:appgroup /app && chmod -R 755 /app
 
 # Cambiar a usuario no root
 USER appuser
