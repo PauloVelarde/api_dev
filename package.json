@@ -22,7 +22,6 @@
     "testModule": "tests/main.js"
   },
   "devDependencies": {
-    "@meteortesting:mocha": "^2.0.0",
     "chai": "^5.1.1",
     "sinon": "^18.0.0"
   }
