@@ -7,26 +7,25 @@ RUN apt-get update && apt-get install -y --no-install-recommends curl && \
     apt-get purge --auto-remove -y curl && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Añadir Meteor al PATH usando la ruta donde se instala automáticamente
-ENV PATH="$HOME/.meteor:$PATH"
+# Añadir Meteor al PATH usando la ruta donde se instala
+ENV PATH="/root/.meteor:$PATH"
 
 # Crear un usuario no root
-RUN useradd -m meteoruser
+RUN useradd -m -d /home/meteoruser meteoruser
 
 # Establece el directorio de trabajo
-WORKDIR /app
+WORKDIR /home/meteoruser/app
 
 # Copia los archivos necesarios con el usuario correcto
-COPY --chown=meteoruser:meteoruser .meteor /app/.meteor
-COPY --chown=meteoruser:meteoruser package*.json /app/
+COPY --chown=meteoruser:meteoruser . .
 
 # Cambiar a usuario no root
 USER meteoruser
 
 # Instala dependencias y compila la aplicación
-RUN meteor npm install --allow-superuser && \
-    meteor build --directory /build --server-only --allow-superuser && \
-    rm -rf /app
+RUN /root/.meteor/meteor npm install --allow-superuser && \
+    /root/.meteor/meteor build --directory /build --server-only --allow-superuser && \
+    rm -rf /home/meteoruser/app
 
 # Etapa 2: Imagen ligera para producción
 FROM node:20-alpine
