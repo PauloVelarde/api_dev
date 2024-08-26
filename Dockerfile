@@ -6,23 +6,18 @@ RUN apt-get update && apt-get install -y curl && \
     curl https://install.meteor.com/ | sh && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Verificar la instalación de Meteor
-RUN echo "Verificando instalación de Meteor..." && \
-    which meteor && \
-    ls -la /root/.meteor || echo "/root/.meteor no encontrado" && \
-    chmod +x /root/.meteor/meteor
+# Crear el directorio /build y ajustar permisos
+RUN mkdir -p /build && chmod 777 /build
 
-# Crear un usuario no root
+# Cambiar a usuario no root
 RUN useradd -m -d /home/meteoruser meteoruser
+USER meteoruser
 
 # Establecer el directorio de trabajo
 WORKDIR /home/meteoruser/app
 
 # Copiar los archivos del proyecto con los permisos correctos
 COPY --chown=meteoruser:meteoruser . .
-
-# Cambiar a usuario no root
-USER meteoruser
 
 # Instalar dependencias y construir la aplicación
 RUN meteor npm install --allow-superuser && \
