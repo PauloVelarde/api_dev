@@ -1,9 +1,9 @@
-# Imagen base de Node.js 20
-FROM node:20-slim AS builder
+# Imagen base de Node.js 20.16
+FROM node:20.16-slim AS builder
 
-# Instalar dependencias necesarias para Meteor
-RUN apt-get update && apt-get install -y curl && \
-    curl https://install.meteor.com/ | sh && \
+# Instalar dependencias necesarias para Meteor 2.12
+RUN apt-get update && apt-get install -y curl --no-install-recommends && \
+    curl https://install.meteor.com/?release=2.12 | sh && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Crear el directorio /build y ajustar permisos
@@ -23,8 +23,8 @@ COPY --chown=meteoruser:meteoruser . .
 RUN meteor npm install --allow-superuser && \
     meteor build --directory /build --server-only --allow-superuser
 
-# Imagen final para producción
-FROM node:20-alpine
+# Imagen final para producción con Node.js 20.16
+FROM node:20.16-alpine
 
 # Crear un usuario no root para la imagen final
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
