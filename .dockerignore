@@ -1,0 +1,25 @@
+# Excluir archivos y directorios generados por npm y Meteor
+node_modules
+npm-debug.log
+.yarn
+.yarn-cache
+.lock-wscript
+
+# Excluir archivos y directorios de caché y logs
+*.log
+*.tmp
+*.swp
+
+# Excluir archivos de configuración local
+.env
+
+# Excluir directorios de compilación y distribución
+.build
+.dist
+
+# Excluir otros archivos que no sean necesarios en la imagen
+.git
+.gitignore
+.dockerignore
+Dockerfile
+*.md
