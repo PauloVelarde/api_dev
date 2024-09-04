@@ -1,0 +1,40 @@
+name: Test Workflow for Fly.io Deployment
+
+on:
+  push:
+    branches:
+      - main # Rama desde la cual quieres ejecutar las pruebas
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        # Verifica el código fuente del repositorio
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+        # Configura Node.js 16 en el entorno de ejecución
+
+      - name: Install Meteor
+        run: curl https://install.meteor.com/?release=2.12 | sh
+        # Instala Meteor 2.12
+
+      - name: Install dependencies
+        run: |
+          meteor npm install
+        # Instala las dependencias de la aplicación
+
+      - name: Build application
+        run: |
+          meteor build --directory /build --server-only
+        # Construye la aplicación Meteor en modo servidor
+
+      - name: Run tests
+        run: |
+          meteor npm test
+        # Ejecuta las pruebas definidas en el archivo package.json para la aplicación
