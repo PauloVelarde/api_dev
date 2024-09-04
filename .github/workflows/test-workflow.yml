@@ -29,12 +29,7 @@ jobs:
           meteor npm install
         # Instala las dependencias de la aplicación
 
-      - name: Build application
+      - name: Run server tests
         run: |
-          meteor build --directory /build --server-only
-        # Construye la aplicación Meteor en modo servidor
-
-      - name: Run tests
-        run: |
-          meteor npm test
-        # Ejecuta las pruebas definidas en el archivo package.json para la aplicación
+          meteor test --driver-package meteortesting:mocha --port 3100
+        # Ejecuta las pruebas del servidor directamente
