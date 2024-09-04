@@ -3,7 +3,7 @@ name: Test Workflow for Fly.io Deployment
 on:
   push:
     branches:
-      - main # Rama desde la cual quieres ejecutar las pruebas
+      - tests # Rama desde la cual quieres ejecutar las pruebas
 
 jobs:
   test:
