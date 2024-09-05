@@ -27,6 +27,7 @@ jobs:
       - name: Build application
         run: |
           meteor npm install --production
+          rm -rf /build  # Limpia el directorio de construcción (si existe)
           meteor build --directory /build --server-only
         # Construye la aplicación Meteor
 
@@ -36,14 +37,16 @@ jobs:
         # Instala Flyctl
 
       - name: Authenticate with Fly.io
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
         run: |
-          echo "${{ secrets.FLY_API_TOKEN }}" | flyctl auth token
+          flyctl auth token $FLY_API_TOKEN
         # Autentica Flyctl con el token de API
 
       - name: Deploy to Fly.io
         run: |
-          flyctl deploy --config fly.toml --remote-only
-        # Despliega la aplicación usando Flyctl
+          flyctl deploy --config fly.toml --remote-only --build-arg NODE_ENV=production
+        # Despliega la aplicación usando Flyctl con variables de entorno adecuadas
 
       - name: Verify deployment
         run: |

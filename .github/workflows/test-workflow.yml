@@ -1,9 +1,9 @@
 name: Test Workflow for Fly.io Deployment
-#test 02
+
 on:
   push:
     branches:
-      - Tests # Rama desde la cual quieres ejecutar las pruebas
+      - Tests # Rama desde la cual se ejecuta el pipeline de prueba
 
 jobs:
   test:
@@ -26,10 +26,20 @@ jobs:
 
       - name: Install dependencies
         run: |
-          meteor npm install
-        # Instala las dependencias de la aplicación
+          meteor npm ci --production
+        # Instala las dependencias de la aplicación en modo producción
+
+      - name: Build application
+        run: |
+          meteor build --directory /build --server-only --allow-superuser
+        # Construye la aplicación de Meteor en modo servidor
+
+      - name: Install test dependencies
+        run: |
+          cd /build/bundle/programs/server && npm ci
+        # Instala las dependencias necesarias para ejecutar las pruebas
 
       - name: Run server tests
         run: |
-          meteor test --driver-package meteortesting:mocha --port 3100
-        # Ejecuta las pruebas del servidor directamente
+          cd /build/bundle && meteor test --driver-package meteortesting:mocha --port 3100
+        # Ejecuta las pruebas del servidor utilizando la compilación de producción
