@@ -1,6 +1,6 @@
 # Usa la imagen base oficial de Node.js versión 16
 # Esta imagen contiene Node.js y npm, que son necesarios para la instalación de dependencias del proyecto.
-FROM node:16
+FROM node:14
 
 # Establece el directorio de trabajo dentro del contenedor
 # Todas las acciones subsiguientes (RUN, COPY, etc.) se ejecutarán desde este directorio.

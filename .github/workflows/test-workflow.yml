@@ -1,5 +1,5 @@
 name: Test Workflow for Fly.io Deployment
-# Comment added to trigger the workflow
+
 on:
   push:
     branches:
@@ -17,8 +17,8 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "16"
-        # Configura Node.js 16 en el entorno de ejecución
+          node-version: "14"
+        # Configura Node.js 14 en el entorno de ejecución
 
       - name: Install Meteor
         run: curl https://install.meteor.com/?release=2.12 | sh
