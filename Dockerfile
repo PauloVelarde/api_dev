@@ -1,4 +1,4 @@
-# Usa la imagen base oficial de Node.js versión 16
+# Usa la imagen base oficial de Node.js versión 14
 # Esta imagen contiene Node.js y npm, que son necesarios para la instalación de dependencias del proyecto.
 FROM node:14
 
