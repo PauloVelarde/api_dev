@@ -1,7 +1,7 @@
 # fly.toml
 
 [app]
-name = "api_dev"  # Nombre de tu aplicación
+name = "api_dev"  # Nombre de la aplicación
 
 [build]
 dockerfile = "Dockerfile"  # Especifica el Dockerfile 
