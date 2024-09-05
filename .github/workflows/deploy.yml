@@ -3,49 +3,49 @@ name: Deploy to Fly.io
 on:
   push:
     branches:
-      - main  # O la rama desde la cual quieres desplegar
+      - main # O la rama desde la cual quieres desplegar
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
-      # Verifica el código fuente del repositorio
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        # Verifica el código fuente del repositorio
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '16'
-      # Configura Node.js 16 en el entorno de ejecución
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "14"
+        # Configura Node.js 14 en el entorno de ejecución
 
-    - name: Install Meteor
-      run: curl https://install.meteor.com/?release=2.12 | sh
-      # Instala Meteor 2.12
+      - name: Install Meteor
+        run: curl https://install.meteor.com/?release=2.12 | sh
+        # Instala Meteor 2.12
 
-    - name: Build application
-      run: |
-        meteor npm install --production
-        meteor build --directory /build --server-only
-      # Construye la aplicación Meteor
+      - name: Build application
+        run: |
+          meteor npm install --production
+          meteor build --directory /build --server-only
+        # Construye la aplicación Meteor
 
-    - name: Install Flyctl
-      run: |
-        curl -L https://fly.io/install.sh | sh
-      # Instala Flyctl
+      - name: Install Flyctl
+        run: |
+          curl -L https://fly.io/install.sh | sh
+        # Instala Flyctl
 
-    - name: Authenticate with Fly.io
-      run: |
-        echo "${{ secrets.FLY_API_TOKEN }}" | flyctl auth token
-      # Autentica Flyctl con el token de API
+      - name: Authenticate with Fly.io
+        run: |
+          echo "${{ secrets.FLY_API_TOKEN }}" | flyctl auth token
+        # Autentica Flyctl con el token de API
 
-    - name: Deploy to Fly.io
-      run: |
-        flyctl deploy --config fly.toml --remote-only
-      # Despliega la aplicación usando Flyctl
+      - name: Deploy to Fly.io
+        run: |
+          flyctl deploy --config fly.toml --remote-only
+        # Despliega la aplicación usando Flyctl
 
-    - name: Verify deployment
-      run: |
-        flyctl status
-      # Verifica el estado del despliegue
+      - name: Verify deployment
+        run: |
+          flyctl status
+        # Verifica el estado del despliegue
