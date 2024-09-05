@@ -12,7 +12,7 @@ COPY package*.json ./
 
 # Instala las dependencias definidas en package.json
 # Esto incluye dependencias de Node.js necesarias para el proyecto.
-RUN npm install
+RUN npm ci
 
 # Instala Meteor versión 2.12
 # Se utiliza el script oficial de instalación de Meteor mediante curl.
