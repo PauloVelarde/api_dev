@@ -31,9 +31,9 @@ jobs:
 
       - name: Build application
         run: |
-          mkdir -p /app/build  # Crear el directorio de compilación dentro de /app
-          meteor build --directory /app/build --server-only --allow-superuser
-        # Construye la aplicación Meteor en un directorio donde el usuario tiene permisos
+          mkdir -p .build  # Crear un directorio de compilación en el directorio de trabajo actual
+          meteor build --directory .build --server-only --allow-superuser
+        # Construye la aplicación Meteor en el directorio de trabajo actual
 
       - name: Install Flyctl
         run: |
