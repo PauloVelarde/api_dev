@@ -43,7 +43,7 @@ jobs:
 
       - name: Authenticate with Fly.io
         run: |
-          flyctl auth login --access-token ${{ secrets.FLY_API_TOKEN }}
+          flyctl auth token ${{ secrets.FLY_API_TOKEN }}
         # Autentica Flyctl con el token de API
 
       - name: Deploy to Fly.io
